@@ -1,0 +1,1111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Management System — B V C College of Engineering</title>
+<style>
+/* ── RESET & BASE ─────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:       #0d1117;
+  --surface:  #161b22;
+  --surface2: #21262d;
+  --border:   #30363d;
+  --text:     #c9d1d9;
+  --muted:    #8b949e;
+  --green:    #3fb950;
+  --blue:     #58a6ff;
+  --yellow:   #e3b341;
+  --red:      #f85149;
+  --orange:   #f0883e;
+  --cyan:     #79c0ff;
+  --purple:   #d2a8ff;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  padding: 0;
+}
+
+/* ── HEADER ──────────────────────────────────────────── */
+header {
+  background: linear-gradient(135deg, #1a1f2e 0%, #161b22 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 18px 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.header-icon {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, #1f6feb, #388bfd);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; flex-shrink: 0;
+}
+.header-text h1 { font-size: 18px; font-weight: 600; color: var(--text); }
+.header-text p  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.badge {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 20px; padding: 4px 12px;
+  font-size: 12px; color: var(--muted);
+}
+.count-badge {
+  background: #1f6feb22; border: 1px solid #1f6feb;
+  color: var(--blue); border-radius: 20px; padding: 4px 14px;
+  font-size: 12px; font-weight: 600; transition: all 0.3s;
+}
+
+/* ── LAYOUT ──────────────────────────────────────────── */
+.app {
+  display: grid;
+  grid-template-columns: 220px 1fr 340px;
+  height: calc(100vh - 73px);
+}
+
+/* ── SIDEBAR ─────────────────────────────────────────── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 16px 10px;
+  display: flex; flex-direction: column; gap: 4px;
+  overflow-y: auto;
+}
+.sidebar-label {
+  font-size: 10px; text-transform: uppercase;
+  letter-spacing: 1.2px; color: var(--muted);
+  padding: 8px 10px 4px;
+}
+.menu-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  background: transparent; border: none;
+  color: var(--text); cursor: pointer;
+  font-size: 13px; text-align: left; width: 100%;
+  transition: background 0.15s, color 0.15s;
+  position: relative;
+}
+.menu-btn:hover  { background: var(--surface2); }
+.menu-btn.active {
+  background: #1f6feb22;
+  color: var(--blue);
+}
+.menu-btn.active::before {
+  content: '';
+  position: absolute; left: 0; top: 6px; bottom: 6px;
+  width: 3px; background: var(--blue);
+  border-radius: 0 3px 3px 0;
+}
+.menu-icon { font-size: 15px; width: 20px; text-align: center; }
+.menu-num {
+  margin-left: auto; font-size: 10px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--muted); border-radius: 4px;
+  padding: 1px 6px;
+}
+.sidebar-divider {
+  border: none; border-top: 1px solid var(--border);
+  margin: 8px 10px;
+}
+.sidebar-bottom { margin-top: auto; padding: 0 4px; }
+
+/* ── MAIN PANEL ──────────────────────────────────────── */
+.main {
+  background: var(--bg);
+  overflow-y: auto;
+  padding: 24px;
+}
+.panel { display: none; }
+.panel.active { display: block; }
+
+.panel-title {
+  font-size: 20px; font-weight: 600;
+  color: var(--text); margin-bottom: 6px;
+}
+.panel-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+/* ── FORM ────────────────────────────────────────────── */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 560px;
+}
+.form-group { margin-bottom: 18px; }
+.form-group label {
+  display: block; font-size: 12px; color: var(--muted);
+  margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.form-group input,
+.form-group select {
+  width: 100%;
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text); padding: 10px 14px;
+  border-radius: 8px; font-size: 14px;
+  font-family: inherit; outline: none;
+  transition: border-color 0.2s;
+}
+.form-group input:focus,
+.form-group select:focus { border-color: var(--blue); }
+.form-group input.error { border-color: var(--red); }
+.form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+.err-msg { color: var(--red); font-size: 12px; margin-top: 6px; }
+
+.btn-primary {
+  background: #238636; border: 1px solid #2ea043;
+  color: #fff; padding: 10px 24px;
+  border-radius: 8px; font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: inherit;
+  transition: background 0.2s;
+}
+.btn-primary:hover { background: #2ea043; }
+.btn-danger {
+  background: #da3633; border: 1px solid #f85149;
+  color: #fff; padding: 10px 24px;
+  border-radius: 8px; font-size: 14px; font-weight: 500;
+  cursor: pointer; font-family: inherit;
+}
+.btn-danger:hover { background: #f85149; }
+.btn-secondary {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--muted); padding: 10px 20px;
+  border-radius: 8px; font-size: 14px;
+  cursor: pointer; font-family: inherit; margin-left: 8px;
+}
+.btn-secondary:hover { background: var(--surface2); color: var(--text); }
+
+/* ── TABLE ───────────────────────────────────────────── */
+.table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  background: var(--surface2); color: var(--muted);
+  padding: 10px 16px; text-align: left;
+  font-weight: 500; letter-spacing: 0.4px;
+  border-bottom: 1px solid var(--border);
+}
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--surface2);
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #ffffff05; }
+.empty-state {
+  text-align: center; padding: 48px 24px;
+  color: var(--muted); font-size: 14px;
+}
+.empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+/* ── GRADE BADGES ────────────────────────────────────── */
+.badge-grade {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 600; white-space: nowrap;
+}
+.g-O  { background:#0d2b12; color:#3fb950; border:1px solid #2ea043; }
+.g-Ap { background:#0d1f3c; color:#58a6ff; border:1px solid #1f6feb; }
+.g-A  { background:#0d261a; color:#56d364; border:1px solid #2ea043; }
+.g-Bp { background:#2a240d; color:#e3b341; border:1px solid #d29922; }
+.g-B  { background:#2a1a0d; color:#f0883e; border:1px solid #bd561d; }
+.g-F  { background:#2d0d0d; color:#f85149; border:1px solid #da3633; }
+
+/* ── SEARCH / DETAIL CARD ────────────────────────────── */
+.detail-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 24px; max-width: 480px;
+  margin-top: 20px; display: none;
+}
+.detail-card.show { display: block; }
+.dc-header {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 20px;
+  padding-bottom: 16px; border-bottom: 1px solid var(--border);
+}
+.dc-avatar {
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, #1f6feb, #58a6ff);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; color: #fff; font-weight: 700; flex-shrink: 0;
+}
+.dc-id   { font-size: 12px; color: var(--blue); margin-bottom: 2px; }
+.dc-name { font-size: 16px; font-weight: 600; }
+.dc-dept { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.dc-row {
+  display: flex; align-items: center;
+  padding: 10px 0; border-bottom: 1px solid var(--surface2);
+}
+.dc-row:last-child { border-bottom: none; }
+.dc-label { width: 120px; font-size: 12px; color: var(--muted); flex-shrink: 0; }
+.dc-val   { font-size: 14px; }
+
+/* ── PROGRESS BAR ────────────────────────────────────── */
+.marks-bar {
+  width: 100%; height: 6px; background: var(--border);
+  border-radius: 3px; margin-top: 8px; overflow: hidden;
+}
+.marks-fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, #1f6feb, #3fb950);
+  transition: width 0.6s ease;
+}
+
+/* ── STATS CARDS ─────────────────────────────────────── */
+.stats-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px;
+}
+.stat-num  { font-size: 32px; font-weight: 700; color: var(--text); }
+.stat-label{ font-size: 12px; color: var(--muted); margin-top: 4px; }
+.stat-icon { font-size: 24px; margin-bottom: 10px; }
+
+/* ── TERMINAL LOG ────────────────────────────────────── */
+.terminal {
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  height: 100%;
+}
+.term-bar {
+  background: var(--surface2); border-bottom: 1px solid var(--border);
+  padding: 10px 16px; display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+}
+.dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; }
+.dot.r { background: #ff5f57; } .dot.y { background: #ffbd2e; } .dot.g { background: #28ca41; }
+.term-title { font-size: 12px; color: var(--muted); margin-left: 4px; font-family: monospace; }
+.term-clear { margin-left: auto; background: none; border: none; color: var(--muted); cursor: pointer; font-size: 11px; }
+.term-clear:hover { color: var(--text); }
+.term-body {
+  flex: 1; overflow-y: auto; padding: 14px 16px;
+  font-family: 'Courier New', monospace; font-size: 12px;
+  line-height: 1.8;
+}
+.log-line { white-space: pre-wrap; word-break: break-word; }
+.log-ok     { color: var(--green); }
+.log-warn   { color: var(--yellow); }
+.log-err    { color: var(--red); }
+.log-info   { color: var(--blue); }
+.log-muted  { color: var(--muted); }
+.log-hdr    { color: var(--cyan); font-weight: bold; }
+.log-prompt { color: var(--purple); }
+.term-input-row {
+  border-top: 1px solid var(--border); padding: 10px 16px;
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.term-prompt { font-family: monospace; font-size: 12px; color: var(--green); flex-shrink: 0; }
+.term-input {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--text); font-family: monospace; font-size: 12px;
+  caret-color: var(--green);
+}
+
+/* ── TOAST ───────────────────────────────────────────── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 18px;
+  font-size: 13px; box-shadow: 0 8px 24px #0008;
+  transform: translateY(80px); opacity: 0;
+  transition: all 0.3s ease; pointer-events: none; z-index: 999;
+  display: flex; align-items: center; gap: 10px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-color: #2ea043; }
+.toast.error   { border-color: var(--red); }
+
+/* ── ACTION BUTTONS IN TABLE ─────────────────────────── */
+.tbl-act {
+  display: flex; gap: 6px;
+}
+.tbl-btn {
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--muted); padding: 4px 10px; border-radius: 6px;
+  font-size: 11px; cursor: pointer; font-family: inherit;
+  transition: all 0.15s;
+}
+.tbl-btn:hover { color: var(--text); border-color: var(--text); }
+.tbl-btn.del:hover { color: var(--red); border-color: var(--red); }
+
+/* ── MODAL ───────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: #000a;
+  display: none; align-items: center; justify-content: center; z-index: 100;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 28px; max-width: 420px; width: 90%;
+  box-shadow: 0 20px 60px #000a;
+}
+.modal h3 { font-size: 16px; margin-bottom: 8px; }
+.modal p  { font-size: 13px; color: var(--muted); margin-bottom: 22px; }
+.modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ── GRADE SCALE TABLE ───────────────────────────────── */
+.grade-scale {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden; max-width: 420px;
+}
+.gs-row {
+  display: flex; align-items: center;
+  padding: 11px 18px; border-bottom: 1px solid var(--surface2);
+  gap: 14px;
+}
+.gs-row:last-child { border-bottom: none; }
+.gs-range { width: 80px; font-size: 13px; color: var(--muted); font-family: monospace; }
+
+/* scrollbars */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-icon">🎓</div>
+  <div class="header-text">
+    <h1>Student Management System</h1>
+    <p>B V C College of Engineering &nbsp;·&nbsp; CSE – AI &amp; ML &nbsp;·&nbsp; OOP Lab</p>
+  </div>
+  <div class="header-right">
+    <div class="badge">Java Simulation</div>
+    <div class="count-badge" id="hdr-count">0 Students</div>
+  </div>
+</header>
+
+<!-- APP LAYOUT -->
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-label">Operations</div>
+
+    <button class="menu-btn active" onclick="showPanel('add')" id="btn-add">
+      <span class="menu-icon">➕</span> Add Student
+      <span class="menu-num">1</span>
+    </button>
+    <button class="menu-btn" onclick="showPanel('display')" id="btn-display">
+      <span class="menu-icon">📋</span> Display All
+      <span class="menu-num">2</span>
+    </button>
+    <button class="menu-btn" onclick="showPanel('search')" id="btn-search">
+      <span class="menu-icon">🔍</span> Search
+      <span class="menu-num">3</span>
+    </button>
+    <button class="menu-btn" onclick="showPanel('update')" id="btn-update">
+      <span class="menu-icon">✏️</span> Update
+      <span class="menu-num">4</span>
+    </button>
+    <button class="menu-btn" onclick="showPanel('delete')" id="btn-delete">
+      <span class="menu-icon">🗑️</span> Delete
+      <span class="menu-num">5</span>
+    </button>
+
+    <hr class="sidebar-divider">
+    <div class="sidebar-label">Reports</div>
+
+    <button class="menu-btn" onclick="showPanel('grade')" id="btn-grade">
+      <span class="menu-icon">📊</span> View Grade
+      <span class="menu-num">6</span>
+    </button>
+    <button class="menu-btn" onclick="showPanel('count')" id="btn-count">
+      <span class="menu-icon">🔢</span> Total Count
+      <span class="menu-num">7</span>
+    </button>
+    <button class="menu-btn" onclick="showPanel('about')" id="btn-about">
+      <span class="menu-icon">📚</span> Grade Scale
+    </button>
+
+    <div class="sidebar-bottom">
+      <hr class="sidebar-divider">
+      <button class="menu-btn" onclick="confirmReset()" style="color:var(--red)">
+        <span class="menu-icon">🔄</span> Reset / Clear All
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN PANEL -->
+  <main class="main">
+
+    <!-- 1. ADD STUDENT -->
+    <div class="panel active" id="panel-add">
+      <div class="panel-title">Add New Student</div>
+      <div class="panel-sub">Fill in the details below. All fields are required.</div>
+      <div class="form-card">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Student ID</label>
+            <input id="a-id" placeholder="e.g. S001" autocomplete="off">
+            <div class="err-msg" id="a-id-err"></div>
+          </div>
+          <div class="form-group">
+            <label>Full Name</label>
+            <input id="a-name" placeholder="e.g. Ravi Kumar" autocomplete="off">
+            <div class="err-msg" id="a-name-err"></div>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Department</label>
+            <input id="a-dept" placeholder="e.g. CSE-AIML" autocomplete="off">
+            <div class="err-msg" id="a-dept-err"></div>
+          </div>
+          <div class="form-group">
+            <label>Academic Year</label>
+            <select id="a-year">
+              <option value="1">1st Year</option>
+              <option value="2" selected>2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Marks (0 – 100)</label>
+          <input id="a-marks" type="number" min="0" max="100" step="0.5" placeholder="e.g. 85.5">
+          <div class="err-msg" id="a-marks-err"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+          <button class="btn-primary" onclick="addStudent()">➕ Add Student</button>
+          <button class="btn-secondary" onclick="clearAddForm()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. DISPLAY ALL -->
+    <div class="panel" id="panel-display">
+      <div class="panel-title">All Students</div>
+      <div class="panel-sub">All registered student records are listed below.</div>
+      <div id="display-empty" class="empty-state" style="display:none">
+        <div class="empty-icon">📭</div>
+        No students registered yet. Go to <strong>Add Student</strong> to begin.
+      </div>
+      <div class="table-wrap" id="display-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Student ID</th>
+              <th>Name</th>
+              <th>Department</th>
+              <th>Year</th>
+              <th>Marks</th>
+              <th>Grade</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="display-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 3. SEARCH -->
+    <div class="panel" id="panel-search">
+      <div class="panel-title">Search Student</div>
+      <div class="panel-sub">Enter a Student ID to view the full profile.</div>
+      <div class="form-card" style="max-width:400px">
+        <div class="form-group">
+          <label>Student ID</label>
+          <input id="s-id" placeholder="e.g. S001" autocomplete="off" onkeydown="if(event.key==='Enter')searchStudent()">
+          <div class="err-msg" id="s-err"></div>
+        </div>
+        <button class="btn-primary" onclick="searchStudent()">🔍 Search</button>
+      </div>
+      <div class="detail-card" id="search-card"></div>
+    </div>
+
+    <!-- 4. UPDATE -->
+    <div class="panel" id="panel-update">
+      <div class="panel-title">Update Student</div>
+      <div class="panel-sub">Find a student by ID, then edit their details.</div>
+      <div class="form-card" style="max-width:440px">
+        <div style="display:flex;gap:10px;align-items:flex-end">
+          <div class="form-group" style="flex:1;margin-bottom:0">
+            <label>Student ID to Update</label>
+            <input id="u-find-id" placeholder="e.g. S001" autocomplete="off" onkeydown="if(event.key==='Enter')findForUpdate()">
+          </div>
+          <button class="btn-primary" style="margin-bottom:0;height:42px;padding:0 18px" onclick="findForUpdate()">Find</button>
+        </div>
+        <div class="err-msg" id="u-find-err" style="margin-top:6px"></div>
+
+        <div id="u-fields" style="display:none;margin-top:20px;padding-top:20px;border-top:1px solid var(--border)">
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input id="u-name" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label>Department</label>
+              <input id="u-dept" autocomplete="off">
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Academic Year</label>
+              <select id="u-year">
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Marks (0 – 100)</label>
+              <input id="u-marks" type="number" min="0" max="100" step="0.5">
+              <div class="err-msg" id="u-marks-err"></div>
+            </div>
+          </div>
+          <button class="btn-primary" onclick="doUpdate()">💾 Save Changes</button>
+          <button class="btn-secondary" onclick="cancelUpdate()">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. DELETE -->
+    <div class="panel" id="panel-delete">
+      <div class="panel-title">Delete Student</div>
+      <div class="panel-sub">Enter a Student ID to permanently remove the record.</div>
+      <div class="form-card" style="max-width:400px">
+        <div class="form-group">
+          <label>Student ID</label>
+          <input id="d-id" placeholder="e.g. S001" autocomplete="off" onkeydown="if(event.key==='Enter')deleteStudent()">
+          <div class="err-msg" id="d-err"></div>
+        </div>
+        <button class="btn-danger" onclick="deleteStudent()">🗑️ Delete Student</button>
+        <button class="btn-secondary" onclick="clearField('d-id','d-err')">Clear</button>
+      </div>
+    </div>
+
+    <!-- 6. GRADE -->
+    <div class="panel" id="panel-grade">
+      <div class="panel-title">View Student Grade</div>
+      <div class="panel-sub">Enter a Student ID to see the calculated grade.</div>
+      <div class="form-card" style="max-width:400px">
+        <div class="form-group">
+          <label>Student ID</label>
+          <input id="g-id" placeholder="e.g. S001" autocomplete="off" onkeydown="if(event.key==='Enter')viewGrade()">
+          <div class="err-msg" id="g-err"></div>
+        </div>
+        <button class="btn-primary" onclick="viewGrade()">📊 View Grade</button>
+      </div>
+      <div class="detail-card" id="grade-card"></div>
+    </div>
+
+    <!-- 7. COUNT -->
+    <div class="panel" id="panel-count">
+      <div class="panel-title">Total Student Count</div>
+      <div class="panel-sub">Summary statistics for all registered students.</div>
+      <div class="stats-grid" id="stats-grid"></div>
+    </div>
+
+    <!-- 8. GRADE SCALE -->
+    <div class="panel" id="panel-about">
+      <div class="panel-title">Grade Scale Reference</div>
+      <div class="panel-sub">Grades are calculated automatically based on marks entered.</div>
+      <div class="grade-scale">
+        <div class="gs-row"><span class="gs-range">90 – 100</span><span class="badge-grade g-O">⭐ O — Outstanding</span></div>
+        <div class="gs-row"><span class="gs-range">75 – 89</span><span class="badge-grade g-Ap">🔵 A+ — Excellent</span></div>
+        <div class="gs-row"><span class="gs-range">60 – 74</span><span class="badge-grade g-A">✅ A — Very Good</span></div>
+        <div class="gs-row"><span class="gs-range">50 – 59</span><span class="badge-grade g-Bp">🟡 B+ — Good</span></div>
+        <div class="gs-row"><span class="gs-range">40 – 49</span><span class="badge-grade g-B">🟠 B — Average</span></div>
+        <div class="gs-row"><span class="gs-range">Below 40</span><span class="badge-grade g-F">❌ F — Fail</span></div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:16px">This matches the <code>calculateGrade()</code> method in <code>Student.java</code></p>
+    </div>
+
+  </main>
+
+  <!-- TERMINAL LOG -->
+  <div class="terminal">
+    <div class="term-bar">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span class="term-title">StudentManagementSystem.java</span>
+      <button class="term-clear" onclick="clearLog()">Clear ✕</button>
+    </div>
+    <div class="term-body" id="term-body"></div>
+    <div class="term-input-row">
+      <span class="term-prompt">$ &gt;&nbsp;</span>
+      <input class="term-input" id="term-input" placeholder="type a command (e.g. help)" onkeydown="handleTermCmd(event)">
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" id="del-modal">
+  <div class="modal">
+    <h3>⚠️ Confirm Deletion</h3>
+    <p id="del-modal-msg">Are you sure you want to delete this student record? This cannot be undone.</p>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('del-modal')">Cancel</button>
+      <button class="btn-danger" id="del-confirm-btn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESET CONFIRM MODAL -->
+<div class="modal-overlay" id="reset-modal">
+  <div class="modal">
+    <h3>🔄 Reset All Data</h3>
+    <p>This will permanently delete ALL student records. Are you sure?</p>
+    <div class="modal-btns">
+      <button class="btn-secondary" onclick="closeModal('reset-modal')">Cancel</button>
+      <button class="btn-danger" onclick="doReset()">Yes, Reset</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span id="toast-icon">✔</span>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+//  DATA STORE
+// ═══════════════════════════════════════════════════════
+let students = JSON.parse(localStorage.getItem('sms_v2') || '[]');
+
+function save() {
+  localStorage.setItem('sms_v2', JSON.stringify(students));
+  updateHeaderCount();
+}
+
+function find(id) {
+  return students.find(s => s.id.toUpperCase() === id.toUpperCase().trim());
+}
+
+// ═══════════════════════════════════════════════════════
+//  GRADE LOGIC
+// ═══════════════════════════════════════════════════════
+function grade(m) {
+  m = parseFloat(m);
+  if (m >= 90) return { label:'O — Outstanding',  cls:'g-O',  emoji:'⭐' };
+  if (m >= 75) return { label:'A+ — Excellent',   cls:'g-Ap', emoji:'🔵' };
+  if (m >= 60) return { label:'A — Very Good',    cls:'g-A',  emoji:'✅' };
+  if (m >= 50) return { label:'B+ — Good',        cls:'g-Bp', emoji:'🟡' };
+  if (m >= 40) return { label:'B — Average',      cls:'g-B',  emoji:'🟠' };
+  return              { label:'F — Fail',         cls:'g-F',  emoji:'❌' };
+}
+
+// ═══════════════════════════════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════════════════════════════
+const panels = ['add','display','search','update','delete','grade','count','about'];
+
+function showPanel(name) {
+  panels.forEach(p => {
+    document.getElementById('panel-'+p).classList.remove('active');
+    const b = document.getElementById('btn-'+p);
+    if (b) b.classList.remove('active');
+  });
+  document.getElementById('panel-'+name).classList.add('active');
+  const btn = document.getElementById('btn-'+name);
+  if (btn) btn.classList.add('active');
+
+  if (name === 'display') renderTable();
+  if (name === 'count')   renderStats();
+}
+
+// ═══════════════════════════════════════════════════════
+//  TERMINAL LOG
+// ═══════════════════════════════════════════════════════
+function tlog(text, cls='') {
+  const tb = document.getElementById('term-body');
+  const d  = document.createElement('div');
+  d.className = 'log-line ' + cls;
+  d.innerHTML = text;
+  tb.appendChild(d);
+  tb.scrollTop = tb.scrollHeight;
+}
+
+function clearLog() {
+  document.getElementById('term-body').innerHTML = '';
+  tlog('  [cleared]', 'log-muted');
+}
+
+function handleTermCmd(e) {
+  if (e.key !== 'Enter') return;
+  const v = document.getElementById('term-input').value.trim().toLowerCase();
+  document.getElementById('term-input').value = '';
+  tlog('$ > ' + v, 'log-prompt');
+  const cmds = {
+    help:    () => {
+      tlog('Commands: help | list | count | clear | add | search &lt;id&gt; | delete &lt;id&gt; | reset', 'log-info');
+    },
+    list:    () => {
+      if (!students.length) { tlog('[!] No students found.', 'log-warn'); return; }
+      students.forEach(s => {
+        const g = grade(s.marks);
+        tlog(`  ${s.id.padEnd(8)} ${s.name.padEnd(22)} ${s.marks} → ${g.label}`, 'log-ok');
+      });
+    },
+    count:   () => tlog(`  Total students: ${students.length}`, 'log-info'),
+    clear:   clearLog,
+    reset:   confirmReset,
+    add:     () => showPanel('add'),
+  };
+  if (cmds[v]) { cmds[v](); return; }
+  if (v.startsWith('search ')) {
+    const id = v.slice(7).trim().toUpperCase();
+    const s = find(id);
+    if (!s) { tlog(`  [!] Not found: ${id}`, 'log-err'); return; }
+    const g = grade(s.marks);
+    tlog(`  ${s.id} | ${s.name} | ${s.dept} | Year ${s.year} | ${s.marks} | ${g.label}`, 'log-ok');
+    return;
+  }
+  if (v.startsWith('delete ')) {
+    const id = v.slice(7).trim().toUpperCase();
+    confirmDelete(id);
+    return;
+  }
+  tlog(`  [?] Unknown command: "${v}". Type help.`, 'log-warn');
+}
+
+// ═══════════════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════════════
+let toastTimer;
+function toast(msg, type='success') {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  document.getElementById('toast-icon').textContent = type === 'success' ? '✔' : '✕';
+  el.className = 'toast show ' + type;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════════════════
+//  HEADER COUNT
+// ═══════════════════════════════════════════════════════
+function updateHeaderCount() {
+  const el = document.getElementById('hdr-count');
+  el.textContent = students.length + (students.length === 1 ? ' Student' : ' Students');
+}
+
+// ═══════════════════════════════════════════════════════
+//  1. ADD STUDENT
+// ═══════════════════════════════════════════════════════
+function addStudent() {
+  const id    = document.getElementById('a-id').value.trim().toUpperCase();
+  const name  = document.getElementById('a-name').value.trim();
+  const dept  = document.getElementById('a-dept').value.trim();
+  const year  = parseInt(document.getElementById('a-year').value);
+  const marks = parseFloat(document.getElementById('a-marks').value);
+
+  let ok = true;
+  const setErr = (field, msg) => { document.getElementById(field+'-err').textContent = msg; document.getElementById(field).classList.add('error'); ok = false; };
+  const clrErr = (field) => { document.getElementById(field+'-err').textContent = ''; document.getElementById(field).classList.remove('error'); };
+  ['a-id','a-name','a-dept','a-marks'].forEach(f => clrErr(f));
+
+  if (!id)   setErr('a-id',   '[!] Student ID cannot be empty.');
+  if (!name) setErr('a-name', '[!] Name cannot be empty.');
+  if (!dept) setErr('a-dept', '[!] Department cannot be empty.');
+  if (isNaN(marks) || marks < 0 || marks > 100) setErr('a-marks', '[!] Marks must be between 0 and 100.');
+  if (id && find(id)) { setErr('a-id', `[!] ID "${id}" already exists. Duplicate IDs not allowed.`); ok = false; }
+
+  if (!ok) { tlog('[!] Add failed — check validation errors.', 'log-err'); return; }
+
+  students.push({ id, name, dept, year, marks });
+  save();
+
+  const g = grade(marks);
+  tlog(`\n  ══ ADD STUDENT ══`, 'log-hdr');
+  tlog(`  Student ID : ${id}`, 'log-info');
+  tlog(`  Name       : ${name}`);
+  tlog(`  Department : ${dept}`);
+  tlog(`  Year       : ${year}   Marks: ${marks}`);
+  tlog(`  Grade      : ${g.emoji} ${g.label}`, 'log-ok');
+  tlog(`  [✔] Student added successfully!`, 'log-ok');
+
+  toast(`${name} added successfully!`);
+  clearAddForm();
+}
+
+function clearAddForm() {
+  ['a-id','a-name','a-dept','a-marks'].forEach(f => {
+    document.getElementById(f).value = '';
+    document.getElementById(f).classList.remove('error');
+  });
+  ['a-id-err','a-name-err','a-dept-err','a-marks-err'].forEach(f => document.getElementById(f).textContent = '');
+  document.getElementById('a-year').selectedIndex = 1;
+}
+
+// ═══════════════════════════════════════════════════════
+//  2. DISPLAY TABLE
+// ═══════════════════════════════════════════════════════
+function renderTable() {
+  const tbody = document.getElementById('display-tbody');
+  const empty = document.getElementById('display-empty');
+  const wrap  = document.getElementById('display-table-wrap');
+  tbody.innerHTML = '';
+
+  if (!students.length) {
+    empty.style.display = 'block';
+    wrap.style.display = 'none';
+    return;
+  }
+  empty.style.display = 'none';
+  wrap.style.display = 'block';
+
+  students.forEach(s => {
+    const g = grade(s.marks);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td style="color:var(--blue);font-family:monospace">${s.id}</td>
+      <td><strong>${s.name}</strong></td>
+      <td style="color:var(--muted)">${s.dept}</td>
+      <td style="text-align:center">${s.year}</td>
+      <td style="text-align:center">${s.marks}</td>
+      <td><span class="badge-grade ${g.cls}">${g.emoji} ${g.label}</span></td>
+      <td>
+        <div class="tbl-act">
+          <button class="tbl-btn" onclick="quickSearch('${s.id}')">View</button>
+          <button class="tbl-btn" onclick="quickUpdate('${s.id}')">Edit</button>
+          <button class="tbl-btn del" onclick="confirmDelete('${s.id}')">Delete</button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  tlog(`\n  [✔] Displaying ${students.length} student(s).`, 'log-ok');
+}
+
+function quickSearch(id) { showPanel('search'); document.getElementById('s-id').value = id; searchStudent(); }
+function quickUpdate(id) { showPanel('update'); document.getElementById('u-find-id').value = id; findForUpdate(); }
+
+// ═══════════════════════════════════════════════════════
+//  3. SEARCH
+// ═══════════════════════════════════════════════════════
+function searchStudent() {
+  const id  = document.getElementById('s-id').value.trim().toUpperCase();
+  const err = document.getElementById('s-err');
+  const card = document.getElementById('search-card');
+  err.textContent = ''; card.classList.remove('show');
+
+  if (!id) { err.textContent = '[!] Please enter a Student ID.'; return; }
+
+  const s = find(id);
+  if (!s) {
+    err.textContent = `[!] No student found with ID: ${id}`;
+    tlog(`  [!] Search: "${id}" not found.`, 'log-err');
+    return;
+  }
+
+  const g = grade(s.marks);
+  const initials = s.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  const fillPct  = Math.round(s.marks);
+
+  card.innerHTML = `
+    <div class="dc-header">
+      <div class="dc-avatar">${initials}</div>
+      <div>
+        <div class="dc-id">${s.id}</div>
+        <div class="dc-name">${s.name}</div>
+        <div class="dc-dept">${s.dept}</div>
+      </div>
+    </div>
+    <div class="dc-row"><span class="dc-label">Academic Year</span><span class="dc-val">Year ${s.year}</span></div>
+    <div class="dc-row">
+      <span class="dc-label">Marks</span>
+      <span class="dc-val" style="flex:1">
+        ${s.marks} / 100
+        <div class="marks-bar"><div class="marks-fill" style="width:${fillPct}%"></div></div>
+      </span>
+    </div>
+    <div class="dc-row"><span class="dc-label">Grade</span><span class="dc-val"><span class="badge-grade ${g.cls}">${g.emoji} ${g.label}</span></span></div>`;
+  card.classList.add('show');
+
+  tlog(`\n  ══ SEARCH RESULT ══`, 'log-hdr');
+  tlog(`  [✔] Found: ${s.name} (${s.id}) — ${g.emoji} ${g.label}`, 'log-ok');
+}
+
+// ═══════════════════════════════════════════════════════
+//  4. UPDATE
+// ═══════════════════════════════════════════════════════
+let updateTargetId = null;
+
+function findForUpdate() {
+  const id  = document.getElementById('u-find-id').value.trim().toUpperCase();
+  const err = document.getElementById('u-find-err');
+  const fields = document.getElementById('u-fields');
+  err.textContent = ''; fields.style.display = 'none'; updateTargetId = null;
+
+  if (!id) { err.textContent = '[!] Please enter a Student ID.'; return; }
+  const s = find(id);
+  if (!s)  { err.textContent = `[!] No student found with ID: ${id}`; return; }
+
+  document.getElementById('u-name').value  = s.name;
+  document.getElementById('u-dept').value  = s.dept;
+  document.getElementById('u-year').value  = s.year;
+  document.getElementById('u-marks').value = s.marks;
+  document.getElementById('u-marks-err').textContent = '';
+  fields.style.display = 'block';
+  updateTargetId = id;
+  tlog(`  [i] Found "${s.name}" — edit the fields and click Save.`, 'log-info');
+}
+
+function doUpdate() {
+  if (!updateTargetId) return;
+  const name  = document.getElementById('u-name').value.trim();
+  const dept  = document.getElementById('u-dept').value.trim();
+  const year  = parseInt(document.getElementById('u-year').value);
+  const marks = parseFloat(document.getElementById('u-marks').value);
+  const merr  = document.getElementById('u-marks-err');
+  merr.textContent = '';
+
+  if (!name || !dept) { toast('Name and Department cannot be empty.', 'error'); return; }
+  if (isNaN(marks) || marks < 0 || marks > 100) { merr.textContent = '[!] Marks must be between 0 and 100.'; return; }
+
+  const s = find(updateTargetId);
+  s.name = name; s.dept = dept; s.year = year; s.marks = marks;
+  save();
+
+  const g = grade(marks);
+  tlog(`\n  [✔] Updated: ${s.id} | ${name} | Marks: ${marks} | ${g.emoji} ${g.label}`, 'log-ok');
+  toast(`${name} updated successfully!`);
+  cancelUpdate();
+}
+
+function cancelUpdate() {
+  document.getElementById('u-fields').style.display = 'none';
+  document.getElementById('u-find-id').value = '';
+  document.getElementById('u-find-err').textContent = '';
+  updateTargetId = null;
+}
+
+// ═══════════════════════════════════════════════════════
+//  5. DELETE
+// ═══════════════════════════════════════════════════════
+let pendingDeleteId = null;
+
+function deleteStudent() {
+  const id  = document.getElementById('d-id').value.trim().toUpperCase();
+  const err = document.getElementById('d-err');
+  err.textContent = '';
+  if (!id) { err.textContent = '[!] Please enter a Student ID.'; return; }
+  const s = find(id);
+  if (!s) { err.textContent = `[!] No student found with ID: ${id}`; return; }
+  confirmDelete(id);
+}
+
+function confirmDelete(id) {
+  const s = find(id);
+  if (!s) return;
+  pendingDeleteId = id;
+  document.getElementById('del-modal-msg').textContent =
+    `Delete "${s.name}" (${s.id})? This cannot be undone.`;
+  document.getElementById('del-modal').classList.add('show');
+  document.getElementById('del-confirm-btn').onclick = doDelete;
+}
+
+function doDelete() {
+  if (!pendingDeleteId) return;
+  const s = find(pendingDeleteId);
+  const name = s ? s.name : pendingDeleteId;
+  students = students.filter(x => x.id.toUpperCase() !== pendingDeleteId.toUpperCase());
+  save();
+  tlog(`\n  [✔] Deleted: ${name} (${pendingDeleteId})`, 'log-err');
+  toast(`${name} deleted.`, 'error');
+  clearField('d-id','d-err');
+  closeModal('del-modal');
+  pendingDeleteId = null;
+  if (document.getElementById('panel-display').classList.contains('active')) renderTable();
+}
+
+function clearField(inp, err) {
+  document.getElementById(inp).value = '';
+  document.getElementById(err).textContent = '';
+}
+
+// ═══════════════════════════════════════════════════════
+//  6. VIEW GRADE
+// ═══════════════════════════════════════════════════════
+function viewGrade() {
+  const id   = document.getElementById('g-id').value.trim().toUpperCase();
+  const err  = document.getElementById('g-err');
+  const card = document.getElementById('grade-card');
+  err.textContent = ''; card.classList.remove('show');
+
+  if (!id) { err.textContent = '[!] Please enter a Student ID.'; return; }
+  const s = find(id);
+  if (!s) { err.textContent = `[!] No student found with ID: ${id}`; return; }
+
+  const g = grade(s.marks);
+  const fillPct = Math.round(s.marks);
+  card.innerHTML = `
+    <div class="dc-row"><span class="dc-label">Student</span><span class="dc-val"><strong>${s.name}</strong> <span style="color:var(--muted);font-size:12px">(${s.id})</span></span></div>
+    <div class="dc-row">
+      <span class="dc-label">Marks</span>
+      <span class="dc-val" style="flex:1">
+        <strong>${s.marks}</strong> / 100
+        <div class="marks-bar"><div class="marks-fill" style="width:${fillPct}%"></div></div>
+      </span>
+    </div>
+    <div class="dc-row"><span class="dc-label">Grade</span><span class="dc-val"><span class="badge-grade ${g.cls}" style="font-size:14px;padding:5px 16px">${g.emoji} ${g.label}</span></span></div>`;
+  card.classList.add('show');
+  tlog(`  [✔] ${s.name}: ${s.marks} marks → ${g.emoji} ${g.label}`, 'log-ok');
+}
+
+// ═══════════════════════════════════════════════════════
+//  7. STATS
+// ═══════════════════════════════════════════════════════
+function renderStats() {
+  const grid = document.getElementById('stats-grid');
+  const n = students.length;
+  let avgMarks = 0, passed = 0, topped = 0;
+  if (n > 0) {
+    avgMarks = (students.reduce((a,s) => a + parseFloat(s.marks), 0) / n).toFixed(1);
+    passed   = students.filter(s => parseFloat(s.marks) >= 40).length;
+    topped   = students.filter(s => parseFloat(s.marks) >= 90).length;
+  }
+  grid.innerHTML = `
+    <div class="stat-card"><div class="stat-icon">🎓</div><div class="stat-num">${n}</div><div class="stat-label">Total Students</div></div>
+    <div class="stat-card"><div class="stat-icon">📈</div><div class="stat-num">${avgMarks}</div><div class="stat-label">Average Marks</div></div>
+    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-num">${passed}</div><div class="stat-label">Students Passed</div></div>
+    <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-num">${topped}</div><div class="stat-label">Outstanding (O Grade)</div></div>
+    <div class="stat-card"><div class="stat-icon">❌</div><div class="stat-num">${n - passed}</div><div class="stat-label">Students Failed</div></div>
+    <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-num">${new Date().toLocaleDateString('en-IN')}</div><div class="stat-label">Report Date</div></div>`;
+  tlog(`  [i] Stats refreshed. Total: ${n}, Avg: ${avgMarks}, Passed: ${passed}`, 'log-info');
+}
+
+// ═══════════════════════════════════════════════════════
+//  RESET
+// ═══════════════════════════════════════════════════════
+function confirmReset() { document.getElementById('reset-modal').classList.add('show'); }
+function doReset() {
+  students = []; save();
+  tlog('\n  [!] All student records cleared.', 'log-err');
+  toast('All records cleared.', 'error');
+  closeModal('reset-modal');
+  showPanel('add');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// ═══════════════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════════════
+(function init() {
+  updateHeaderCount();
+  tlog('  ╔══════════════════════════════════════╗', 'log-hdr');
+  tlog('  ║   Student Management System          ║', 'log-hdr');
+  tlog('  ║   B V C College of Engineering       ║', 'log-hdr');
+  tlog('  ╚══════════════════════════════════════╝', 'log-hdr');
+  tlog('');
+  if (students.length > 0)
+    tlog(`  [✔] Loaded ${students.length} student record(s) from storage.`, 'log-ok');
+  else
+    tlog('  [i] No saved data. Ready to add students.', 'log-info');
+  tlog('');
+  tlog('  Type <span style="color:var(--yellow)">help</span> for terminal commands.', 'log-muted');
+})();
+</script>
+</body>
+</html>
